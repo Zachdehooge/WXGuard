@@ -101,7 +101,6 @@ func main() {
 		ticker := time.NewTicker(time.Minute)
 		defer ticker.Stop()
 
-		// Set status immediately on start
 		_ = s.UpdateStatusComplex(discordgo.UpdateStatusData{
 			Activities: []*discordgo.Activity{
 				{
