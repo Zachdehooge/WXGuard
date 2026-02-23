@@ -153,6 +153,9 @@ func main() {
 		log.Fatalf("Cannot refresh commands: %v", err)
 	}
 
+	JSONCreate()
+	fetchWarnings()
+
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	log.Println("Press Ctrl+C to exit")
