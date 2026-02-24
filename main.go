@@ -22,8 +22,10 @@ func init() {
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v | Check the .env", err)
 	}
+	globalSession = s
 	JSONCheck()
 	fetchWarningToJson()
+	CheckAndSendAlerts()
 }
 
 var (
@@ -87,7 +89,7 @@ var (
 			torchannel := i.ApplicationCommandData().Options[0].StringValue()
 			svrstormchannel := i.ApplicationCommandData().Options[1].StringValue()
 			winterchannel := i.ApplicationCommandData().Options[2].StringValue()
-			swschannel := i.ApplicationCommandData().Options[2].StringValue()
+			swschannel := i.ApplicationCommandData().Options[3].StringValue()
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
@@ -166,6 +168,8 @@ func main() {
 		})
 
 		for range ticker.C {
+			CheckAndSendAlerts()
+
 			err := s.UpdateStatusComplex(discordgo.UpdateStatusData{
 				Activities: []*discordgo.Activity{
 					{
