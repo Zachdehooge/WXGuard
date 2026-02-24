@@ -22,10 +22,10 @@ func init() {
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v | Check the .env", err)
 	}
-
+	JSONCheck()
+	fetchWarningToJson()
 }
 
-// Slash Commands
 var (
 	commands = []*discordgo.ApplicationCommand{
 		{
@@ -35,6 +35,36 @@ var (
 		{
 			Name:        "botstatus",
 			Description: "botstatus",
+		},
+		{
+			Name:        "addchannel",
+			Description: "adds channels to the database",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "torchannel",
+					Description: "tornado channel",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "svrstormchannel",
+					Description: "severe storm channel",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "winterchannel",
+					Description: "winter channel",
+					Required:    true,
+				},
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "swschannel",
+					Description: "Special Weather Statement channel",
+					Required:    true,
+				},
+			},
 		},
 	}
 
@@ -52,6 +82,30 @@ var (
 					},
 				},
 			})
+		},
+		"addchannel": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			torchannel := i.ApplicationCommandData().Options[0].StringValue()
+			svrstormchannel := i.ApplicationCommandData().Options[1].StringValue()
+			winterchannel := i.ApplicationCommandData().Options[2].StringValue()
+			swschannel := i.ApplicationCommandData().Options[2].StringValue()
+			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Embeds: []*discordgo.MessageEmbed{
+						{
+							Title: "Channel Added",
+							Fields: []*discordgo.MessageEmbedField{
+								{
+									Value:  "Tornado Channel:" + torchannel + "\n" + "Severe Thunderstorm Channel: " + svrstormchannel + "\n" + "Winter Channel: " + winterchannel + "\n" + "Special Weather Statement: " + swschannel,
+									Inline: false,
+								},
+							},
+							Color: 0x57F287,
+						},
+					},
+				},
+			})
+			addChannel(torchannel, svrstormchannel, winterchannel, swschannel)
 		},
 		"help": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -152,9 +206,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot refresh commands: %v", err)
 	}
-
-	JSONCreate()
-	fetchWarnings()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
